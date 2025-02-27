@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xadrez Matemático</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            gap: 0;
+            margin: 20px auto;
+            border: 1px solid #333;
+        }
+
+        .square {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .square:nth-child(even) {
+            background-color: #c9c9c9;
+        }
+
+        .square:nth-child(odd) {
+            background-color: #fff;
+        }
+
+        .equation {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #answer {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Xadrez Matemático</h1>
+<div id="board"></div>
+
+<div class="equation">
+    <p>Equação: <span id="equation">Carregando...</span></p>
+    <input type="text" id="answer" placeholder="Sua resposta">
+    <button onclick="checkAnswer()">Mover Peça</button>
+</div>
+
+<div id="score">Pontos: 0</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Math.js/9.4.4/math.min.js"></script>
+<script>
+    let board = [];
+    let score = 0;
+    let currentEquation;
+
+    // Função para gerar o tabuleiro de xadrez
+    function generateBoard() {
+        const boardElement = document.getElementById('board');
+        boardElement.innerHTML = '';
+        for (let row = 0; row < 8; row++) {
+            let rowArray = [];
+            for (let col = 0; col < 8; col++) {
+                let square = document.createElement('div');
+                square.classList.add('square');
+                square.dataset.row = row;
+                square.dataset.col = col;
+                rowArray.push(square);
+                boardElement.appendChild(square);
+            }
+            board.push(rowArray);
+        }
+        placePieces();
+    }
+
+    // Função para posicionar as peças no tabuleiro com símbolos de texto
+    function placePieces() {
+        const initialBoard = [
+            ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'],
+            ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+            ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+        ];
+
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                let square = board[row][col];
+                square.textContent = initialBoard[row][col] !== '.' ? initialBoard[row][col] : '';
+            }
+        }
+    }
+
+    // Função para gerar uma equação aleatória
+    function generateEquation() {
+        let num1 = Math.floor(Math.random() * 10) + 1;
+        let num2 = Math.floor(Math.random() * 10) + 1;
+        let operator = Math.random() > 0.5 ? '+' : '-';
+        currentEquation = `${num1} ${operator} ${num2}`;
+        document.getElementById('equation').textContent = currentEquation;
+    }
+
+    // Função para verificar a resposta e mover a peça
+    function checkAnswer() {
+        const answer = document.getElementById('answer').value;
+        if (math.evaluate(currentEquation) === parseInt(answer)) {
+            score += 100;
+            document.getElementById('score').textContent = `Pontos: ${score}`;
+            generateEquation();  // Gera uma nova equação após mover
+        } else {
+            score -= 50;
+            document.getElementById('score').textContent = `Pontos: ${score}`;
+        }
+    }
+
+    // Inicia o jogo
+    generateBoard();
+    generateEquation();
+</script>
+
+</body>
+</html>
