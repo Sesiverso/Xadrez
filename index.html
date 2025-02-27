@@ -147,7 +147,7 @@
         }
     }
 
-    // Função que move a peça selecionada
+    // Função que move a peça selecionada para uma posição válida
     function movePiece(piece) {
         if (piece) {
             const row = parseInt(piece.dataset.row);
@@ -160,21 +160,69 @@
         }
     }
 
-    // Função para a IA mover aleatoriamente
+    // Função para a IA mover uma peça aleatória
     function aiMove() {
-        // Lógica simples para IA mover aleatoriamente
-        let rows = [0, 1, 2, 3, 4, 5, 6, 7];
-        let cols = [0, 1, 2, 3, 4, 5, 6, 7];
-        let randomRow = rows[Math.floor(Math.random() * 8)];
-        let randomCol = cols[Math.floor(Math.random() * 8)];
-        let randomSquare = board[randomRow][randomCol];
+        let validMoves = [];
+        let targetPiece = null;
 
-        if (randomSquare.textContent === '') {
-            randomSquare.textContent = '♟';  // Exemplo de peça da IA
+        // Procura uma peça da IA para mover
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                if (board[row][col].textContent === '♟') {  // Se for peça da IA
+                    targetPiece = { row, col };
+                    validMoves = getValidMoves(targetPiece.row, targetPiece.col);
+                    break;
+                }
+            }
+        }
+
+        if (validMoves.length > 0) {
+            let randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+            board[targetPiece.row][targetPiece.col].textContent = '';
+            board[randomMove.row][randomMove.col].textContent = '♟';  // Move a peça da IA
+
             isPlayerTurn = true;  // Permite o jogador mover novamente
         } else {
-            aiMove();  // Se a célula já tiver peça, tenta outra
+            aiMove();  // Se não houver movimento válido, tenta novamente
         }
+    }
+
+    // Função para obter movimentos válidos de uma peça
+    function getValidMoves(row, col) {
+        let piece = board[row][col].textContent;
+        let validMoves = [];
+
+        // Verifica movimentos válidos para as peças
+        if (piece === '♙') {  // Peão
+            if (row + 1 < 8 && !board[row + 1][col].textContent) {
+                validMoves.push({ row: row + 1, col });
+            }
+        }
+        if (piece === '♖') {  // Torre
+            // Movimento horizontal e vertical
+            for (let i = row + 1; i < 8; i++) {
+                if (board[i][col].textContent === '') {
+                    validMoves.push({ row: i, col });
+                } else break;
+            }
+            for (let i = row - 1; i >= 0; i--) {
+                if (board[i][col].textContent === '') {
+                    validMoves.push({ row: i, col });
+                } else break;
+            }
+            for (let i = col + 1; i < 8; i++) {
+                if (board[row][i].textContent === '') {
+                    validMoves.push({ row, col: i });
+                } else break;
+            }
+            for (let i = col - 1; i >= 0; i--) {
+                if (board[row][i].textContent === '') {
+                    validMoves.push({ row, col: i });
+                } else break;
+            }
+        }
+        // Implementar regras para outras peças aqui (Bispo, Cavalo, etc.)
+        return validMoves;
     }
 
     // Função para lidar com o clique na célula
