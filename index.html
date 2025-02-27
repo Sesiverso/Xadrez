@@ -152,8 +152,15 @@
         if (piece) {
             const row = parseInt(piece.dataset.row);
             const col = parseInt(piece.dataset.col);
-            board[row][col].textContent = '';
-            placePieces();
+            board[row][col].textContent = ''; // Remove o símbolo da peça anterior
+
+            // Mover a peça para a nova posição
+            const targetRow = parseInt(piece.dataset.targetRow);
+            const targetCol = parseInt(piece.dataset.targetCol);
+            board[targetRow][targetCol].textContent = piece.textContent; // Coloca o símbolo da peça na nova posição
+
+            placePieces();  // Atualiza o tabuleiro
+
             selectedPiece = null;
             isPlayerTurn = false;
             setTimeout(() => aiMove(), 1000);  // Espera a IA mover após o jogador
@@ -178,7 +185,7 @@
 
         if (validMoves.length > 0) {
             let randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-            board[targetPiece.row][targetPiece.col].textContent = '';
+            board[targetPiece.row][targetPiece.col].textContent = '';  // Remove a peça da IA
             board[randomMove.row][randomMove.col].textContent = '♟';  // Move a peça da IA
 
             isPlayerTurn = true;  // Permite o jogador mover novamente
@@ -235,6 +242,10 @@
             // Marca a peça como selecionada
             selectedPiece = square;
             square.classList.add('selected');
+
+            // Salva o alvo de movimento da peça
+            square.dataset.targetRow = square.dataset.row;
+            square.dataset.targetCol = square.dataset.col;
         }
     }
 
