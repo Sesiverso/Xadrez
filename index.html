@@ -28,6 +28,11 @@
             background-color: #f0f0f0;
             font-size: 30px;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .square.selected {
+            border: 3px solid red;
         }
 
         .square:nth-child(even) {
@@ -51,6 +56,10 @@
         #answer {
             font-size: 18px;
         }
+
+        .disabled {
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +80,8 @@
     let board = [];
     let score = 0;
     let currentEquation;
+    let selectedPiece = null;
+    let isPlayerTurn = true;
 
     // Função para gerar o tabuleiro de xadrez
     function generateBoard() {
@@ -83,6 +94,7 @@
                 square.classList.add('square');
                 square.dataset.row = row;
                 square.dataset.col = col;
+                square.addEventListener('click', () => handleSquareClick(square));
                 rowArray.push(square);
                 boardElement.appendChild(square);
             }
@@ -127,10 +139,54 @@
         if (math.evaluate(currentEquation) === parseInt(answer)) {
             score += 100;
             document.getElementById('score').textContent = `Pontos: ${score}`;
+            movePiece(selectedPiece);
             generateEquation();  // Gera uma nova equação após mover
         } else {
             score -= 50;
             document.getElementById('score').textContent = `Pontos: ${score}`;
+        }
+    }
+
+    // Função que move a peça selecionada
+    function movePiece(piece) {
+        if (piece) {
+            const row = parseInt(piece.dataset.row);
+            const col = parseInt(piece.dataset.col);
+            board[row][col].textContent = '';
+            placePieces();
+            selectedPiece = null;
+            isPlayerTurn = false;
+            setTimeout(() => aiMove(), 1000);  // Espera a IA mover após o jogador
+        }
+    }
+
+    // Função para a IA mover aleatoriamente
+    function aiMove() {
+        // Lógica simples para IA mover aleatoriamente
+        let rows = [0, 1, 2, 3, 4, 5, 6, 7];
+        let cols = [0, 1, 2, 3, 4, 5, 6, 7];
+        let randomRow = rows[Math.floor(Math.random() * 8)];
+        let randomCol = cols[Math.floor(Math.random() * 8)];
+        let randomSquare = board[randomRow][randomCol];
+
+        if (randomSquare.textContent === '') {
+            randomSquare.textContent = '♟';  // Exemplo de peça da IA
+            isPlayerTurn = true;  // Permite o jogador mover novamente
+        } else {
+            aiMove();  // Se a célula já tiver peça, tenta outra
+        }
+    }
+
+    // Função para lidar com o clique na célula
+    function handleSquareClick(square) {
+        if (isPlayerTurn && square.textContent !== '') {
+            // Se uma peça já foi selecionada, remove a seleção
+            if (selectedPiece) {
+                selectedPiece.classList.remove('selected');
+            }
+            // Marca a peça como selecionada
+            selectedPiece = square;
+            square.classList.add('selected');
         }
     }
 
